@@ -4,6 +4,7 @@ package com.shopzone.app.dto;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -41,9 +42,9 @@ public class ProductDto {
 
     private String dimensions;
 
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     private Boolean isActive;
 
@@ -71,7 +72,7 @@ public class ProductDto {
   
   private List<String> variantColors;
   private List<String> variantSizes;
-
+  
 
     public BigDecimal getDiscountPercentage() {
         if (mrp != null && discountPrice != null && mrp.compareTo(BigDecimal.ZERO) > 0) {
@@ -155,19 +156,19 @@ public class ProductDto {
 		this.dimensions = dimensions;
 	}
 
-	public Date getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Date createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
+	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(Date updatedAt) {
+	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 
