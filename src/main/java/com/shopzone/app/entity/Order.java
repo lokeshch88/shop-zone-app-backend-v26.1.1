@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "orders")
@@ -43,7 +45,32 @@ public class Order {
    	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
    	private List<OrderItem> items;
 
-   	public List<OrderItem> getItems() {
+    @Column(name = "address_id")
+    private Long addressId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="delivery_id" )
+    @JsonIgnore
+    private Delivery deliveryId;
+    
+    
+   	public Delivery getDeliveryId() {
+		return deliveryId;
+	}
+
+	public void setDeliveryId(Delivery deliveryId) {
+		this.deliveryId = deliveryId;
+	}
+
+	public Long getAddressId() {
+		return addressId;
+	}
+
+	public void setAddressId(Long addressId) {
+		this.addressId = addressId;
+	}
+
+	public List<OrderItem> getItems() {
    	    return items;
    	}
 
@@ -125,4 +152,13 @@ public class Order {
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
+
+	@Override
+	public String toString() {
+		return " [id=" + id + ", user=" + user + ", status=" + status + ", totalAmount=" + totalAmount
+				+ ", orderId=" + orderId + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", items=" + items
+				+ ", addressId=" + addressId + "]";
+	}
+    
+    
 }

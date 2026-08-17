@@ -35,4 +35,17 @@ public class CategoryService {
 		}
 	}
 
+	public String updateCategory(Category cat) {
+		try {
+			categoryRepo.save(cat);
+			return "updated";
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return "no updatte";
+		
+	}
+
+	
+
 }

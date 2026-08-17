@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +47,7 @@ public class CategoryController {
 	}
 
 	@GetMapping("/get-all")
-	@PreAuthorize("hasRole('ADMIN')")
+//	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<Category>> getAllCategories() {
 		try {
 			List<Category> categories = categoryService.getAllCategories();
@@ -57,4 +58,11 @@ public class CategoryController {
 		}
 	}
 
+	@PutMapping("{id}")
+	public ResponseEntity<ResponseEntity> updateCategory(@RequestBody Category cat){
+		String result=categoryService.updateCategory(cat);
+		if(result=="updated") 
+			return ResponseEntity.ok(null);
+		return null;
+	}
 }

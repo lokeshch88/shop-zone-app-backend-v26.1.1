@@ -35,9 +35,9 @@ public class UserService implements UserDetailsService {
 	public String registerUser(UserDto userDto) {
 		try {
 			// check if email already exists
-			if (userRepo.existsByEmail(userDto.getEmail())) {
-				return "Email already in use: " + userDto.getEmail();
-			}
+//			if (userRepo.existsByEmail(userDto.getEmail())) {
+//				return "Email already in use: " + userDto.getEmail();
+//			}
 			// check if username already exists
 			if (userRepo.existsByUsername(userDto.getUsername())) {
 				return "Username is already taken: " + userDto.getUsername();
@@ -52,9 +52,9 @@ public class UserService implements UserDetailsService {
 			user.setCreatedAt(LocalDateTime.now()); // set entry date time as created
 
 			user.setPassword(encodedPassword);
-			user.setAge(18);
+			user.setAge(0);
 			user.setUsername(userDto.getUsername());
-			user.setRole("USER");
+			user.setRole(userDto.getUserRole());
 
 			userRepo.save(user); // save
 			return "User saved successfully";
@@ -169,6 +169,15 @@ public class UserService implements UserDetailsService {
 		userDto.setUpdatedAt(user.getUpdatedAt());
 
 		return userDto;
+	}
+
+	public List<UserDto> getAllDeliveryPartners() {
+		List<User> users = userRepo.findAll();
+
+		 return users.stream()
+				 .filter(user-> "Delivery User".equals(user.getRole()) )
+	                .map(user -> modelMapper.map(user, UserDto.class))
+	                .collect(Collectors.toList());
 	}
 
 }

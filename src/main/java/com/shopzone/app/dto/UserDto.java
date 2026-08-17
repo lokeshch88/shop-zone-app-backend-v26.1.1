@@ -6,9 +6,6 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.*;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 
 public class UserDto {

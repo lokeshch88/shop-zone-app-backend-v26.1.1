@@ -12,4 +12,5 @@ public enum OrderStatus {
     REFUNDED,	//Customer was refunded (partial or full)
     FAILED,	 //Order payment failed or order could not be processed
     ON_HOLD,	//Order is temporarily on hold (e.g., awaiting info)
+    OUT_FOR_DELIVERY, ASSIGNED,
 }

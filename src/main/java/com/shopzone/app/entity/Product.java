@@ -68,7 +68,7 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private String isActive;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -99,8 +99,31 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants;
 
+	@Column(name="compare_price")
+	private BigDecimal comparePrice;
+	
+	@Lob
+	@Column(columnDefinition = "LONGBLOB")
+	private byte[] imageData;
     
-    public List<ProductVariant> getVariants() {
+	
+    public byte[] getImageData() {
+		return imageData;
+	}
+
+	public void setImageData(byte[] imageData) {
+		this.imageData = imageData;
+	}
+
+	public BigDecimal getComparePrice() {
+		return comparePrice;
+	}
+
+	public void setComparePrice(BigDecimal comparePrice) {
+		this.comparePrice = comparePrice;
+	}
+
+	public List<ProductVariant> getVariants() {
 		return variants;
 	}
 
@@ -129,9 +152,9 @@ public class Product {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
 
     public String getName() {
         return name;
@@ -214,11 +237,11 @@ public class Product {
         this.updatedAt = updatedAt;
     }
 
-    public Boolean getIsActive() {
+    public String getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(Boolean isActive) {
+    public void setIsActive(String isActive) {
         this.isActive = isActive;
     }
 
@@ -261,4 +284,16 @@ public class Product {
     public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
+
+	@Override
+	public String toString() {
+		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
+				+ ", quantityInStock=" + quantityInStock + ", brand=" + brand + ", sku=" + sku + ", weight=" + weight
+				+ ", dimensions=" + dimensions + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", isActive="
+				+ isActive + ", imageUrl=" + imageUrl + ", manufacturer=" + manufacturer + ", rating=" + rating
+				+ ", mrp=" + mrp + ", discountPrice=" + discountPrice + ", categoryId=" + categoryId + ", variants="
+				+ variants + ", comparePrice=" + comparePrice + "]";
+	}
+    
+    
 }

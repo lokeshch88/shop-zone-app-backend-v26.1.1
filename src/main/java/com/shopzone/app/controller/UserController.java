@@ -171,12 +171,12 @@ public class UserController {
 				log.info("Response msg: {}", user.getMsg());
 				return ResponseEntity.ok(user);
 			}
-			if (userRepo.existsByEmail(user.getEmail())) {
-				user.setMsg("Email already in use: " + user.getEmail());
-
-				log.info("Response msg: {}", user.getMsg());
-				return ResponseEntity.ok(user);
-			}
+//			if (userRepo.existsByEmail(user.getEmail())) {
+//				user.setMsg("Email already in use: " + user.getEmail());
+//
+//				log.info("Response msg: {}", user.getMsg());
+//				return ResponseEntity.ok(user);
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 
@@ -306,6 +306,17 @@ public class UserController {
 	public ResponseEntity<List<UserDto>> getAllUsers() {
 		try {
 			List<UserDto> users = userService.getAllUsers();
+			return ResponseEntity.ok(users);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+	
+	@GetMapping("/delivery-partners")
+	//@PreAuthorize("hasRole('ADMIN')") // Only admins can get all users
+	public ResponseEntity<List<UserDto>> getAllDeliveryPartners() {
+		try {
+			List<UserDto> users = userService.getAllDeliveryPartners();
 			return ResponseEntity.ok(users);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

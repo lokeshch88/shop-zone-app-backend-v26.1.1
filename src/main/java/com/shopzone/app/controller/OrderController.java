@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -66,7 +67,7 @@ public class OrderController {
         Long userId = Long.valueOf(payload.get("userId").toString());
 
         log.info("In update order status method for order id: " + orderId);
-
+log.info("Update order by id "+userId+ " to status "+status);
         return ResponseEntity.ok(OrderService.updateOrderStatus(orderId, status, userId));
     }
 
@@ -80,7 +81,7 @@ public class OrderController {
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponse>> getMyOrders(Authentication authentication){
     try {
-    	String username = authentication.getName(); // or extract email
+    	String username = authentication.getName(); // 
     	log.info("Fetch my order for "+username);
     	log.info("In fetch my order method for user: "+username);
         User user = userRepo.findByUsername(username)
@@ -96,6 +97,7 @@ public class OrderController {
     }
 
     @GetMapping("/all")  
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
     	log.info("In fetch all order method for admin: ");
         return ResponseEntity.ok(OrderService.getAllOrders());
@@ -103,6 +105,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable String id) {
+    	log.info("In fetch order for id: "+id);
         return ResponseEntity.ok(OrderService.getOrderById(id));
     }
 

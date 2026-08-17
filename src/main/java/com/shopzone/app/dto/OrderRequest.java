@@ -12,7 +12,7 @@ public class OrderRequest {
         private List<VariantDTO> products;
         private Double totalAmount;
         private List<OrderItemDto> items;
-        
+        private Long addressId;
         
         public OrderRequest() {}
 
@@ -56,6 +56,18 @@ public class OrderRequest {
 
 		public void setItems(List<OrderItemDto> items) {
 			this.items = items;
+		}
+
+
+
+		public Long getAddressId() {
+			return addressId;
+		}
+
+
+
+		public void setAddressId(Long addressId) {
+			this.addressId = addressId;
 		}
    
 

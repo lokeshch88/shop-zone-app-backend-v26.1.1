@@ -49,5 +49,53 @@ public class Cart {
         this.updatedAt = java.time.LocalDateTime.now();
     }
 
-    // Getters and setters
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public List<CartItem> getItems() {
+		return items;
+	}
+
+	public void setItems(List<CartItem> items) {
+		this.items = items;
+	}
+
+	public Double getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(Double totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public java.time.LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(java.time.LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public java.time.LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+   
 }

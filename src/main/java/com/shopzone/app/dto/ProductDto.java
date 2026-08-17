@@ -1,87 +1,112 @@
 package com.shopzone.app.dto;
 
-
+import javax.persistence.Column;
 import javax.validation.constraints.*;
+
+import com.shopzone.app.entity.Product;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
 public class ProductDto {
 
-    private Long id;
+	private Long id;
 
-    @NotNull
-    @Size(min = 3, max = 255)
-    private String name;
+	@NotNull
+	@Size(min = 3, max = 255)
+	private String name;
 
-    @NotNull
-    private String description;
+	@NotNull
+	private String description;
 
-    @NotNull
-    @DecimalMin(value = "0.01")
-    private BigDecimal price;
+	@NotNull
+	@DecimalMin(value = "0.01")
+	private BigDecimal price;
 
-    @Min(0)
-    private Integer quantityInStock;
+	@Min(0)
+	private Integer quantityInStock;
 
-    @NotNull
-    @Size(min = 2, max = 100)
-    private String brand;
+	@NotNull
+	@Size(min = 2, max = 100)
+	private String brand;
 
 //    @NotNull
 //    @Size(min = 2, max = 100)
 //    private String category;
 
-    @NotNull
-    @Pattern(regexp = "^[A-Za-z0-9_-]+$")
-    private String sku;
+	@NotNull
+	@Pattern(regexp = "^[A-Za-z0-9_-]+$")
+	private String sku;
 
-    private Double weight;
+	private Double weight;
 
-    private String dimensions;
+	private String dimensions;
 
-    private LocalDateTime createdAt;
+	private Date createdAt;
 
-    private LocalDateTime updatedAt;
+	private Date updatedAt;
 
-    private Boolean isActive;
+	private String isActive;
 
-    private String imageUrl;
+	private String imageUrl;
 
-    private String manufacturer;
+	private String manufacturer;
 
-    @DecimalMin(value = "0.0")
-    @DecimalMax(value = "5.0")
-    private Double rating;
+	@DecimalMin(value = "0.0")
+	@DecimalMax(value = "5.0")
+	private Double rating;
 
-    @DecimalMin(value = "0.01")
-    private BigDecimal mrp;
+	@DecimalMin(value = "0.01")
+	private BigDecimal mrp;
 
-    @DecimalMin(value = "0.01")
-    private BigDecimal discountPrice;
+	@DecimalMin(value = "0.01")
+	private BigDecimal discountPrice;
 
-    // Optional calculated field (transient in response)
-    private BigDecimal discountPercentage;
-  
-  @NotNull
-    private Long categoryId;
+	// Optional calculated field (transient in response)
+	private BigDecimal discountPercentage;
 
-  private List<VariantDTO> variants;
-  
-  private List<String> variantColors;
-  private List<String> variantSizes;
-  
+	@NotNull
+	private Long categoryId;
 
-    public BigDecimal getDiscountPercentage() {
-        if (mrp != null && discountPrice != null && mrp.compareTo(BigDecimal.ZERO) > 0) {
-            return (mrp.subtract(discountPrice))
-                    .divide(mrp, 2, BigDecimal.ROUND_HALF_UP)
-                    .multiply(BigDecimal.valueOf(100));
-        }
-        return BigDecimal.ZERO;
-    }
+	private List<VariantDTO> variants;
+
+	private BigDecimal comparePrice;
+
+	private List<String> variantColors;
+	private List<String> variantSizes;
+
+	private String imageBase64;
+
+	public ProductDto(Product product) {
+		this.id = product.getId();
+		this.name = product.getName();
+		this.price = product.getPrice();
+		this.description = product.getDescription(); 
+		this.categoryId = product.getCategoryId() != null ? product.getCategoryId().getId() : null;
+		this.isActive = product.getIsActive();
+		this.brand = product.getBrand();
+		this.comparePrice = product.getComparePrice();
+		this.mrp = product.getMrp();
+		this.quantityInStock = product.getQuantityInStock();
+		this.sku=product.getSku();
+		if (product.getImageData() != null) {
+			this.imageBase64 = Base64.getEncoder().encodeToString(product.getImageData());
+		}
+	}
+
+	public BigDecimal getDiscountPercentage() {
+		if (mrp != null && discountPrice != null && mrp.compareTo(BigDecimal.ZERO) > 0) {
+			return (mrp.subtract(discountPrice)).divide(mrp, 2, BigDecimal.ROUND_HALF_UP)
+					.multiply(BigDecimal.valueOf(100));
+		}
+		return BigDecimal.ZERO;
+	}
+
+	public ProductDto() {
+	}
 
 	public Long getId() {
 		return id;
@@ -131,7 +156,6 @@ public class ProductDto {
 		this.brand = brand;
 	}
 
-
 	public String getSku() {
 		return sku;
 	}
@@ -156,27 +180,27 @@ public class ProductDto {
 		this.dimensions = dimensions;
 	}
 
-	public LocalDateTime getCreatedAt() {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDateTime createdAt) {
+	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public LocalDateTime getUpdatedAt() {
+	public Date getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
+	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 
-	public Boolean getIsActive() {
+	public String getIsActive() {
 		return isActive;
 	}
 
-	public void setIsActive(Boolean isActive) {
+	public void setIsActive(String isActive) {
 		this.isActive = isActive;
 	}
 
@@ -240,6 +264,20 @@ public class ProductDto {
 		this.variants = variants;
 	}
 
-   
-}
+	public BigDecimal getComparePrice() {
+		return comparePrice;
+	}
 
+	public void setComparePrice(BigDecimal comparePrice) {
+		this.comparePrice = comparePrice;
+	}
+
+	public String getImageBase64() {
+		return imageBase64;
+	}
+
+	public void setImageBase64(String imageBase64) {
+		this.imageBase64 = imageBase64;
+	}
+
+}
