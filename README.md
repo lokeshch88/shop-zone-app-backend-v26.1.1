@@ -16,6 +16,8 @@ This is a backend project for a Shopping App built using Spring Boot. It include
 
 ## ✅ Features
 - User registration & login with JWT authentication
+- Multi merchant registration with unique slug
+- Validation based on slug and merchant id users
 - Role-based access (Admin/User)
 - Async booking confirmation via email
 - CRUD APIs for Order
