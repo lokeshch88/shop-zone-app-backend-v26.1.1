@@ -1,0 +1,63 @@
+name: Deploy Spring Boot Backend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Java 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+
+    # FIX: Removed 'cd backend' because pom.xml is already at the root directory
+    - name: Build and Package with Maven
+      run: mvn clean package -DskipTests=true
+
+    # FIX: Adjusted path to look for target/*.jar directly at the root level
+    - name: Prepare Deployment Files
+      run: cp target/*.jar .
+
+    # Copies BOTH the JAR file and the Dockerfile onto the AWS instance
+    - name: Copy target artifacts to AWS
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.AWS_EC2_IP }}
+        username: ec2-user
+        key: ${{ secrets.AWS_SSH_KEY }}
+        source: "*.jar,Dockerfile"
+        target: "~/shopzone/backend"
+
+    # Connects to AWS via SSH, builds the image from the folder, and launches it
+    - name: SSH and Launch Backend Container
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AWS_EC2_IP }}
+        username: ec2-user
+        key: ${{ secrets.AWS_SSH_KEY }}
+        script: |
+          cd ~/shopzone/backend
+          # Stop and remove old version if running
+          docker stop shopzone-backend || true
+          docker rm shopzone-backend || true
+          
+          # Build container image from current folder context
+          docker build -t shopzone-backend .
+          
+          # Run container inside the shared network, injecting DB coordinates dynamically
+          docker run -d \
+            --name shopzone-backend \
+            --network shopzone-network \
+            -p 8080:8080 \
+            -e DB_HOST=shopzone-db \
+            -e DB_NAME=shopzone_db \
+            -e DB_USER=root \
+            -e DB_PASSWORD=rootpassword \
+            shopzone-backend

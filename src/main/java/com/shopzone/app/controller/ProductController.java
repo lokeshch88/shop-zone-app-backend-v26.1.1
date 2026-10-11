@@ -17,6 +17,7 @@ import com.shopzone.app.service.ProductService;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +55,11 @@ public class ProductController {
 //		    	  log.info("Product created name: "+ createdProduct.getName()+" with id: " + createdProduct.getId());
 //		        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
 //		    } else {
-//		    			        log.error("Failed to create product: {}", product.getName());
+//		    					log.error("Failed to create product: {}", product.getName());
 //		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //		    }
 //		  
-////		    return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+//		//	    return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
 //		}
 
 	// Create a new product
@@ -266,7 +267,7 @@ public class ProductController {
 
 		} catch (RuntimeException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(Map.of("error", "Product not found"));
+					.body(Collections.singletonMap("error", "Product not found"));
 		}
 	}
 
@@ -283,8 +284,9 @@ public class ProductController {
 
 		} catch (RuntimeException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(Map.of("error", "Product not found"));
+					.body(Collections.singletonMap("error", "Product not found"));
 		}
 	}
 
 }
+

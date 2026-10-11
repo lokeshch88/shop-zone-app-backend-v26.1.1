@@ -1,5 +1,6 @@
 package com.shopzone.app.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class StoreController {
 	@GetMapping("/payment-methods")
 	public List<String> getPaymentMethods(@RequestHeader("X-Merchant-Slug") String merchantSlug) {
 		log.info("Fetching payment methods for merchant slug: {}", merchantSlug);
-		return List.of("Online", "Cash");
+		return Arrays.asList("Online", "Cash");
 	}
 	
 	@GetMapping("/slug")
@@ -49,3 +50,4 @@ public class StoreController {
 	}
 
 }
+

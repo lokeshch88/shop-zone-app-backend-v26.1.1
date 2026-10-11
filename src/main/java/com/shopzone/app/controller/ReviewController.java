@@ -19,6 +19,7 @@ import com.shopzone.app.entity.MerchantReply;
 import com.shopzone.app.service.ReviewService;
 
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class ReviewController {
         try {
             if (rating == null || rating < 1 || rating > 5) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Rating must be between 1 and 5"));
+                        .body(Collections.singletonMap("error", "Rating must be between 1 and 5"));
             }
 
             ProductReview review = reviewService.createReview(productId, rating, title, content);
@@ -61,11 +62,11 @@ public class ReviewController {
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Error creating review", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create review: " + e.getMessage()));
+                    .body(Collections.singletonMap("error", "Failed to create review: " + e.getMessage()));
         }
     }
 
@@ -89,11 +90,11 @@ public class ReviewController {
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating review", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update review"));
+                    .body(Collections.singletonMap("error", "Failed to update review"));
         }
     }
 
@@ -107,11 +108,11 @@ public class ReviewController {
 
         try {
             reviewService.deleteReview(reviewId);
-            return ResponseEntity.ok(Map.of("message", "Review deleted successfully"));
+            return ResponseEntity.ok(Collections.singletonMap("message", "Review deleted successfully"));
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
@@ -143,7 +144,7 @@ public class ReviewController {
         } catch (Exception e) {
             log.error("Error fetching reviews", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch reviews"));
+                    .body(Collections.singletonMap("error", "Failed to fetch reviews"));
         }
     }
 
@@ -162,7 +163,7 @@ public class ReviewController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Review not found"));
+                    .body(Collections.singletonMap("error", "Review not found"));
         }
     }
 
@@ -181,7 +182,7 @@ public class ReviewController {
         try {
             if (rating < 1 || rating > 5) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Rating must be between 1 and 5"));
+                        .body(Collections.singletonMap("error", "Rating must be between 1 and 5"));
             }
 
             Page<ProductReview> reviews = reviewService.getReviewsByRating(productId, rating, page, size);
@@ -198,7 +199,7 @@ public class ReviewController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch reviews"));
+                    .body(Collections.singletonMap("error", "Failed to fetch reviews"));
         }
     }
 
@@ -227,7 +228,7 @@ public class ReviewController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch user reviews"));
+                    .body(Collections.singletonMap("error", "Failed to fetch user reviews"));
         }
     }
 
@@ -257,7 +258,7 @@ public class ReviewController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to get rating distribution"));
+                    .body(Collections.singletonMap("error", "Failed to get rating distribution"));
         }
     }
 
@@ -271,11 +272,11 @@ public class ReviewController {
 
         try {
             Double avgRating = reviewService.getAverageRating(productId);
-            return ResponseEntity.ok(Map.of("averageRating", avgRating));
+            return ResponseEntity.ok(Collections.singletonMap("averageRating", avgRating));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to get average rating"));
+                    .body(Collections.singletonMap("error", "Failed to get average rating"));
         }
     }
 
@@ -293,7 +294,7 @@ public class ReviewController {
         try {
             if (photoFile.isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Photo cannot be empty"));
+                        .body(Collections.singletonMap("error", "Photo cannot be empty"));
             }
 
             ReviewPhoto photo = reviewService.addPhotoToReview(reviewId, photoFile, displayOrder);
@@ -302,11 +303,11 @@ public class ReviewController {
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Error uploading photo", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to upload photo"));
+                    .body(Collections.singletonMap("error", "Failed to upload photo"));
         }
     }
 
@@ -320,11 +321,11 @@ public class ReviewController {
 
         try {
             reviewService.deletePhotoFromReview(photoId);
-            return ResponseEntity.ok(Map.of("message", "Photo deleted successfully"));
+            return ResponseEntity.ok(Collections.singletonMap("message", "Photo deleted successfully"));
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
@@ -342,7 +343,7 @@ public class ReviewController {
         try {
             if (replyText == null || replyText.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Reply text cannot be empty"));
+                        .body(Collections.singletonMap("error", "Reply text cannot be empty"));
             }
 
             MerchantReply reply = reviewService.replyToReview(reviewId, replyText, replyType);
@@ -352,11 +353,11 @@ public class ReviewController {
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Collections.singletonMap("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Error adding reply", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to add reply"));
+                    .body(Collections.singletonMap("error", "Failed to add reply"));
         }
     }
 
@@ -374,11 +375,11 @@ public class ReviewController {
                     .map(this::convertReplyToDTO)
                     .collect(Collectors.toList());
 
-            return ResponseEntity.ok(Map.of("replies", dtos));
+            return ResponseEntity.ok(Collections.singletonMap("replies", dtos));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch replies"));
+                    .body(Collections.singletonMap("error", "Failed to fetch replies"));
         }
     }
 
@@ -393,11 +394,11 @@ public class ReviewController {
 
         try {
             reviewService.approveReview(reviewId);
-            return ResponseEntity.ok(Map.of("message", "Review approved successfully"));
+            return ResponseEntity.ok(Collections.singletonMap("message", "Review approved successfully"));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to approve review"));
+                    .body(Collections.singletonMap("error", "Failed to approve review"));
         }
     }
 
@@ -410,11 +411,11 @@ public class ReviewController {
 
         try {
             reviewService.rejectReview(reviewId, reason);
-            return ResponseEntity.ok(Map.of("message", "Review rejected successfully"));
+            return ResponseEntity.ok(Collections.singletonMap("message", "Review rejected successfully"));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to reject review"));
+                    .body(Collections.singletonMap("error", "Failed to reject review"));
         }
     }
 
@@ -439,7 +440,7 @@ public class ReviewController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to fetch unapproved reviews"));
+                    .body(Collections.singletonMap("error", "Failed to fetch unapproved reviews"));
         }
     }
 
@@ -507,3 +508,4 @@ public class ReviewController {
         return dto;
     }
 }
+

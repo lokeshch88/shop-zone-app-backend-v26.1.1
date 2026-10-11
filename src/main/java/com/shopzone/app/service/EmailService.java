@@ -67,6 +67,7 @@ public class EmailService {
 
 	}
 
+	@Async
 	public String sendOtp(EmailRequest req) {
 		String resp;
 
