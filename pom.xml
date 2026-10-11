@@ -115,13 +115,6 @@
 			<artifactId>kie-server-spring-boot-starter</artifactId>
 			 <version>7.46.0.Final</version>
 		</dependency>-->
-
-
-		<dependency>
-			<groupId>com.contentapp</groupId>
-			<artifactId>content-app-backend</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>
