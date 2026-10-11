@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.shopzone.app.entity.Category;
+import com.shopzone.app.entity.Merchant;
 import com.shopzone.app.entity.Product;
 
 import java.util.List;
@@ -19,9 +20,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Custom query to find products by brand
     List<Product> findByBrand(String brand);
-
+    
 	List<Product> findByCategoryId(Category category);
 
 	List<Product> findAllByIsActive(String string);
+
+	List<Product> findAllByMerchant(Merchant merchant);
+
+	List<Product> findAllByIsActiveAndMerchant(String string, Merchant merchant);
+
+	Long countByMerchant(Merchant merchant);
 }
 

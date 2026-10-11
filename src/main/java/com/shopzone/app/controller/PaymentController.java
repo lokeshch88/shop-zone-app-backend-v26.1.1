@@ -8,6 +8,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,17 +20,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import com.razorpay.Utils;
 import com.shopzone.app.dto.PaymentDto;
 import com.shopzone.app.entity.OrderStatus;
 import com.shopzone.app.repo.OrderRepository;
-import com.razorpay.Order;
-
 import com.shopzone.utils.RandomCodeUtil;
-
-import com.razorpay.RazorpayClient;
-import com.razorpay.Utils;
 
 @RestController
 @CrossOrigin("*")
@@ -43,10 +42,13 @@ public class PaymentController {
 
 	    @Autowired
 		private OrderRepository orderRepository;
+	    
+	    private final static Logger log =LoggerFactory.getLogger(PaymentController.class);
 
 	    @PostMapping("/create-order")
 	    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> data) throws RazorpayException {
-	        RazorpayClient client = new RazorpayClient(keyId, keySecret);
+	      log.info("creating order for payment "+data);
+	    	RazorpayClient client = new RazorpayClient(keyId, keySecret);
 
 	        JSONObject orderRequest = new JSONObject();
 	        int amount = Integer.parseInt(data.get("amount").toString()); // Amount in paise
@@ -60,11 +62,13 @@ public class PaymentController {
 	        response.put("orderId", order.get("id"));
 	        response.put("amount", order.get("amount"));
 	        response.put("currency", order.get("currency"));
+	        log.info("Payment order created "+response);
 	        return ResponseEntity.ok(response);
 	    }
 
 	    @PostMapping("/verify")
 	    public ResponseEntity<String> verifyPayment(@RequestBody Map<String, String> data) {
+	    	log.info("verifying payment with data: "+data);
 	        String orderId = data.get("razorpay_order_id");
 	        String paymentId = data.get("razorpay_payment_id");
 	        String signature = data.get("razorpay_signature");
@@ -82,7 +86,7 @@ public class PaymentController {
 	                // ✅ Verified → Update order status to CONFIRMED
 	            	com.shopzone.app.entity.Order order = orderRepository.findByOrderId(id)
 	                              .orElseThrow(() -> new RuntimeException("Order not found"));
-
+log.info("Payment verified, order status changing to CONFIRMED");
 	                order.setStatus(OrderStatus.CONFIRMED);
 //	                order.setRazorpayPaymentId(paymentId);
 	                orderRepository.save(order);
@@ -106,7 +110,7 @@ public class PaymentController {
 	    }
 
 	    
-	    
+	  //dummy method  
 	@PostMapping("/process")
 	public ResponseEntity<?> processPayment(PaymentDto paymentDto){
 		try {

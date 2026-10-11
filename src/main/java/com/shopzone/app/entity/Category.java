@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -31,9 +33,46 @@ public class Category {
 	
 	 @Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+	 
+	 @ManyToOne(fetch = javax.persistence.FetchType.LAZY)
+	 @JoinColumn(name = "merchant_id", nullable = false)
+	 private Merchant merchant;
+	 
+	 @Column(name = "created_by", nullable = false)
+	 private String createdBy;
+	 
+
+	 
+	 //getter setter
+	 
+	 
 
 	public Long getId() {
 		return id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Merchant getMerchant() {
+		return merchant;
+	}
+
+	public void setMerchant(Merchant merchant) {
+		this.merchant = merchant;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	public void setId(Long id) {

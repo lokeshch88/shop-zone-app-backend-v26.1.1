@@ -53,8 +53,164 @@ public class Order {
     @JsonIgnore
     private Delivery deliveryId;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="merchant_id" )
+//    @JsonIgnore
+    private Merchant merchant;
     
-   	public Delivery getDeliveryId() {
+    //payment details
+    private String paymentMethod;
+
+    private String paymentStatus;
+    private String paymentId;
+    private String paymentSignature;
+    private String currency;
+    private String transactionId;
+    private String paymentGateway;
+    private String paymentError;
+    private LocalDateTime paymentDateTime;
+    
+    //checkout deatisl
+    private String couponCodeApplied;
+    private Double couponDiscount;
+    private Double shippingCost;
+    private Double taxAmount;
+    private String estimatedDeliveryDate;
+    private Integer totalItems;
+    
+    
+    
+   	public Merchant getMerchant() {
+		return merchant;
+	}
+
+	public void setMerchant(Merchant merchant) {
+		this.merchant = merchant;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+	public String getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+	public String getPaymentId() {
+		return paymentId;
+	}
+
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
+	}
+
+	public String getPaymentSignature() {
+		return paymentSignature;
+	}
+
+	public void setPaymentSignature(String paymentSignature) {
+		this.paymentSignature = paymentSignature;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+	
+	
+
+	public String getCouponCodeApplied() {
+		return couponCodeApplied;
+	}
+
+	public void setCouponCodeApplied(String couponCodeApplied) {
+		this.couponCodeApplied = couponCodeApplied;
+	}
+
+	public Double getCouponDiscount() {
+		return couponDiscount;
+	}
+
+	public void setCouponDiscount(Double couponDiscount) {
+		this.couponDiscount = couponDiscount;
+	}
+
+	public Double getShippingCost() {
+		return shippingCost;
+	}
+
+	public void setShippingCost(Double shippingCost) {
+		this.shippingCost = shippingCost;
+	}
+
+	public Double getTaxAmount() {
+		return taxAmount;
+	}
+
+	public void setTaxAmount(Double taxAmount) {
+		this.taxAmount = taxAmount;
+	}
+
+	public String getEstimatedDeliveryDate() {
+		return estimatedDeliveryDate;
+	}
+
+	public void setEstimatedDeliveryDate(String estimatedDeliveryDate) {
+		this.estimatedDeliveryDate = estimatedDeliveryDate;
+	}
+
+	public Integer getTotalItems() {
+		return totalItems;
+	}
+
+	public void setTotalItems(Integer totalItems) {
+		this.totalItems = totalItems;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public String getPaymentGateway() {
+		return paymentGateway;
+	}
+
+	public void setPaymentGateway(String paymentGateway) {
+		this.paymentGateway = paymentGateway;
+	}
+
+	public String getPaymentError() {
+		return paymentError;
+	}
+
+	public void setPaymentError(String paymentError) {
+		this.paymentError = paymentError;
+	}
+
+	public LocalDateTime getPaymentDateTime() {
+		return paymentDateTime;
+	}
+
+	public void setPaymentDateTime(LocalDateTime paymentDateTime) {
+		this.paymentDateTime = paymentDateTime;
+	}
+
+	public Delivery getDeliveryId() {
 		return deliveryId;
 	}
 
@@ -155,10 +311,16 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return " [id=" + id + ", user=" + user + ", status=" + status + ", totalAmount=" + totalAmount
+		return "Order [id=" + id + ", user=" + user + ", status=" + status + ", totalAmount=" + totalAmount
 				+ ", orderId=" + orderId + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", items=" + items
-				+ ", addressId=" + addressId + "]";
+				+ ", addressId=" + addressId + ", deliveryId=" + deliveryId + ", merchant=" + merchant
+				+ ", paymentMethod=" + paymentMethod + ", paymentStatus=" + paymentStatus + ", paymentId=" + paymentId
+				+ ", paymentSignature=" + paymentSignature + ", currency=" + currency + ", transactionId="
+				+ transactionId + ", paymentGateway=" + paymentGateway + ", paymentError=" + paymentError
+				+ ", paymentDateTime=" + paymentDateTime + "]";
 	}
+
+	
     
     
 }

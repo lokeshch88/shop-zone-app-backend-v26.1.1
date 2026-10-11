@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,10 +42,12 @@ import com.shopzone.app.dto.ResponseDto;
 import com.shopzone.app.dto.UserDto;
 import com.shopzone.app.dto.UserResetPassword;
 import com.shopzone.app.dto.VerifyEmailOtpRequest;
+import com.shopzone.app.entity.Merchant;
 import com.shopzone.app.entity.User;
 import com.shopzone.app.repo.UserRepo;
 import com.shopzone.app.service.EmailService;
 import com.shopzone.app.service.GeneralParameterService;
+import com.shopzone.app.service.MerchantService;
 import com.shopzone.app.service.UserService;
 import com.shopzone.app.utils.JwtUtil;
 
@@ -76,10 +79,13 @@ public class UserController {
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 
+	@Autowired
+	private MerchantService merchantService;
+
 //	@PostMapping(path = "/login")
 //	public String login(@RequestBody UserDto user){
 //		try {
-//		  Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
+//		  Optional<User> foundUser = userRepo.findByUsername(user.getUsername());
 //		    
 //		    if (!foundUser.isPresent() || !passwordEncoder.matches(user.getPassword(), foundUser.get().getPassword())) {
 //		        throw new BadCredentialsException("Invalid username or password");
@@ -92,93 +98,180 @@ public class UserController {
 //	}
 
 	@PostMapping("/login")
-	public ResponseEntity<UserDto> login(@Valid @RequestBody UserDto userDto) {
-		try {
-			// Authenticate the user based on the username and password
-			Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(userDto.getUsername(), userDto.getPassword()));
+	public ResponseEntity<UserDto> login(
+	        @Valid @RequestBody UserDto userDto) {
 
-			// If authentication is successful, generate JWT token
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			String token = jwtUtil.generateToken(userDto);
+	    try {
 
-			// fetch user details to send resp
-			Optional<User> userOpt = userRepo.findByUsername(userDto.getUsername());
-			if (!userOpt.isPresent()) {
-				log.warn("Authenticated but user not found in DB");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new UserDto("User not found"));
-			}
+	        // =====================================================
+	        // 1. AUTHENTICATE USER
+	        // =====================================================
 
-			User user = userOpt.get();
+	        Authentication authentication =
+	                authenticationManager.authenticate(
+	                        new UsernamePasswordAuthenticationToken(
+	                                userDto.getUsername(),
+	                                userDto.getPassword()
+	                        )
+	                );
 
-			// UserDto userResponseDto = new UserDto();
-			// userResponseDto.setUsername(userDto.getUsername());
-			userDto.setToken(token);
-			userDto.setPassword(null);
-			userDto.setUsername(user.getUsername());
-			userDto.setFirstName(user.getFirstName());
-			userDto.setLastName(user.getLastName());
-			userDto.setEmail(user.getEmail());
-			userDto.setUserId(user.getId());
-			userDto.setUserRole(user.getRole());
 
-	        List<AddressDto> addressDTOs = user.getAddresses()
-	            .stream()
-	            .map(addr -> {
-	            	AddressDto a = new AddressDto();
-	                a.setId(addr.getId());
-	                a.setAddressLine(addr.getAddressLine());
-	                a.setCity(addr.getCity());
-	                a.setDistrict(addr.getDistrict());
-	                a.setState(addr.getState());
-	                a.setCountry(addr.getCountry());
-	                a.setPincode(addr.getPincode());
-	                a.setLatitude(addr.getLatitude());
-	                a.setLongitude(addr.getLongitude());
-	                return a;
-	            })
-	            .collect(Collectors.toList());
+	        // =====================================================
+	        // 2. SET SECURITY CONTEXT
+	        // =====================================================
 
-	        userDto.setAddresses(addressDTOs);
+	        SecurityContextHolder
+	                .getContext()
+	                .setAuthentication(authentication);
 
-			userDto.setMsg("Welcome " + userDto.getUsername());
 
-			log.info("User logged in successfully with username: " + userDto.getUsername());
+	        // =====================================================
+	        // 3. FETCH ACTUAL USER FROM DATABASE
+	        // =====================================================
 
-			return ResponseEntity.ok(userDto); // Return token in response
+	        User user = userRepo
+	                .findByUsername(userDto.getUsername())
+	                .orElseThrow(() ->
+	                        new RuntimeException("User not found")
+	                );
 
-		} catch (BadCredentialsException e) {
-			userDto.setMsg("Invalid username or password");
-			userDto.setPassword(null);
-			log.warn("Invalid username or password");
 
-			return ResponseEntity.badRequest().body(userDto);
-		} catch (Exception e) {
-			log.error("Error while login user " + userDto.getUsername());
-			userDto.setMsg("Server error while  login");
-			userDto.setPassword(null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(userDto);
-		}
+	        // =====================================================
+	        // 4. GENERATE JWT FROM DATABASE USER
+	        //    IMPORTANT: NOT FROM userDto
+	        // =====================================================
 
+	        String token = jwtUtil.generateToken(user);
+
+
+	        // =====================================================
+	        // 5. SET RESPONSE DATA
+	        // =====================================================
+
+	        userDto.setToken(token);
+
+	        userDto.setUserId(user.getId());
+
+	        userDto.setEmail(user.getEmail());
+
+	        userDto.setFirstName(user.getFirstName());
+
+	        userDto.setLastName(user.getLastName());
+
+	        userDto.setUserRole(user.getRole());
+
+	        userDto.setAge(user.getAge());
+
+
+	        // =====================================================
+	        // 6. SET MERCHANT ID
+	        // =====================================================
+
+	        if (user.getMerchant() != null) {
+
+	            userDto.setMerchantId(
+	                    user.getMerchant().getId()
+	            );
+
+	        } else {
+
+	            userDto.setMerchantId(null);
+	        }
+
+
+	        // =====================================================
+	        // 7. MESSAGE
+	        // =====================================================
+
+	        userDto.setMsg(
+	                "Welcome " + user.getUsername()
+	        );
+
+
+	        // Don't return password
+	        userDto.setPassword(null);
+
+
+	        log.info(
+	                "User logged in successfully with username: "
+	                        + user.getUsername()
+	        );
+
+
+	        // =====================================================
+	        // 8. RETURN RESPONSE
+	        // =====================================================
+
+	        return ResponseEntity.ok(userDto);
+
+
+	    } catch (BadCredentialsException e) {
+          
+	    	log.debug("error", e);
+	        userDto.setMsg(
+	                "Invalid username or password"
+	        );
+
+	        userDto.setPassword(null);
+
+	        log.warn(
+	                "Invalid username or password for username: "
+	                        + userDto.getUsername()
+	        );
+
+	        return ResponseEntity
+	                .badRequest()
+	                .body(userDto);
+
+
+	    } catch (Exception e) {
+
+	        log.error(
+	                "Error while login user "
+	                        + userDto.getUsername(),
+	                e
+	        );
+
+	        userDto.setMsg(
+	                "Server error while login"
+	        );
+
+	        userDto.setPassword(null);
+
+	        return ResponseEntity
+	                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(userDto);
+	    }
 	}
 
 	@PostMapping("/check-availability")
-	public ResponseEntity<UserDto> checkUsernameEmailAvailability(@RequestBody UserDto user) {
+	public ResponseEntity<UserDto> checkUsernameEmailAvailability(@RequestBody UserDto user,
+			@RequestHeader(value = "X-Merchant-Slug", required = true) String merchantSlug
+			) {
+		log.info("Checking availability for username: {} and email: {}", user.getUsername(), user.getEmail());
+		
+		log.info("Merchant slug from header: {}", merchantSlug);
+		Merchant merchant = merchantService.getMerchantBySlug(merchantSlug);
+		log.info("Merchant found: {}", merchant != null ? merchant.getBusinessName() : "null");
+		
+		
 		try {
-			if (userRepo.existsByUsername(user.getUsername())) {
-				user.setMsg("Username is already taken: " + user.getUsername());
+			if (userRepo.existsByUsernameAndMerchant(user.getUsername(), merchant)) {
+				user.setMsg("Username is already taken: " + user.getUsername() +", Try with different Username");
 
 				log.info("Response msg: {}", user.getMsg());
 				return ResponseEntity.ok(user);
 			}
-//			if (userRepo.existsByEmail(user.getEmail())) {
-//				user.setMsg("Email already in use: " + user.getEmail());
-//
-//				log.info("Response msg: {}", user.getMsg());
-//				return ResponseEntity.ok(user);
-//			}
+			if (userRepo.existsByEmailAndMerchant(user.getEmail(), merchant)) {
+				user.setMsg("Email already in use: " + user.getEmail());
+
+				log.info("Response msg: {}", user.getMsg());
+				return ResponseEntity.ok(user);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			user.setMsg("Error while checking availability: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(user);
 
 		}
 		log.info("Username and email are available.");
@@ -189,22 +282,27 @@ public class UserController {
 	@PostMapping("/register")
 	// @PreAuthorize("hasRole('ADMIN')")
 	// @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-	public ResponseEntity<UserDto> register(@Valid @RequestBody UserDto userDto) {
+	public ResponseEntity<UserDto> register(@Valid @RequestBody UserDto userDto
+			, @RequestHeader(value = "X-Merchant-Slug", required = true) String merchantSlug) {
 		UserDto userResponseDto = new UserDto();
 		try {
 			log.info("In user Registration for username " + userDto.getUsername());
 
 			// otp verification reqd before registartion
-			// check otp from email service
+			// check otp from email service -done by email service 
+			
+			Merchant merchant = merchantService.getMerchantBySlug(merchantSlug);
+			log.info("Merchant found: {}", merchant != null ? merchant.getBusinessName() : "null");
+			
 
-			String msg = userService.registerUser(userDto);
+			String msg = userService.registerUser(userDto, merchant);
 
 			userResponseDto.setUsername(userDto.getUsername());
 			userResponseDto.setMsg(msg);
 
 			// if user reg. successful
 			if ("User saved successfully".equals(msg)) {
-				log.info("Registration successful with username " + userDto.getUsername());
+				log.info("Registration successful with username " + userDto.getUsername() + " for merchant " + merchant.getBusinessName());
 				// send registration welcome email
 				emailService.sendWelcomeEmail(userDto);
 			}
@@ -303,9 +401,11 @@ public class UserController {
 	// Get All Users (Admin-only)
 	@GetMapping("/all")
 	@PreAuthorize("hasRole('ADMIN')") // Only admins can get all users
-	public ResponseEntity<List<UserDto>> getAllUsers() {
+	public ResponseEntity<List<UserDto>> getAllUsers(
+			@RequestHeader(value = "X-Merchant-Slug", required = true) String merchantSlug
+			) {
 		try {
-			List<UserDto> users = userService.getAllUsers();
+			List<UserDto> users = userService.getAllUsers(merchantSlug);
 			return ResponseEntity.ok(users);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

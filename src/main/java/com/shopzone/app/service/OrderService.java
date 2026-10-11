@@ -22,6 +22,7 @@ import com.shopzone.app.dto.OrderRequest;
 import com.shopzone.app.dto.OrderResponse;
 import com.shopzone.app.entity.Address;
 import com.shopzone.app.entity.Delivery;
+import com.shopzone.app.entity.Merchant;
 import com.shopzone.app.entity.Order;
 import com.shopzone.app.entity.OrderItem;
 import com.shopzone.app.entity.OrderStatus;
@@ -29,6 +30,7 @@ import com.shopzone.app.entity.Product;
 import com.shopzone.app.entity.User;
 import com.shopzone.app.repo.AddressRepository;
 import com.shopzone.app.repo.DeliveryRepository;
+import com.shopzone.app.repo.MerchantRepository;
 import com.shopzone.app.repo.OrderRepository;
 import com.shopzone.app.repo.ProductRepository;
 import com.shopzone.app.repo.UserRepo;
@@ -41,7 +43,7 @@ public class OrderService {
 	private OrderRepository orderRepository;
 
 	@Autowired
-	private UserRepo userRepository;
+	private UserRepo userRepo;
 
 	@Autowired
 	private EmailService emailService;
@@ -60,12 +62,26 @@ public class OrderService {
 	@Autowired
 	private ModelMapper modelMapper;
 
-	public OrderResponse createOrder(Long userId, OrderRequest request) {
+	@Autowired
+	private MerchantService merchantService;
+
+	@Autowired
+	private MerchantRepository merchantRepo;
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
+	public OrderResponse createOrder(Long userId, OrderRequest request, String merchantSlug) {
 
 		try {
 			Order order = new Order();
-			log.info("In order create service with user id " + userId);
-			order.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+			log.info("In order create service with user id " + userId + " and merchant slug " + merchantSlug + " and order request " + request);
+			
+		Merchant merchant=	merchantRepo.findByStoreSlug(merchantSlug)
+				.orElseThrow(() -> new RuntimeException("Merchant not found"));
+		
+		log.info("Merchant found for order create with slug: " + merchantSlug + " and cd: " + merchant.getMerchantCode() +"for user id: " + userId);
+			order.setUser(userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
 
 			order.setStatus(OrderStatus.PENDING); // default status
 			
@@ -77,6 +93,22 @@ public class OrderService {
 			order.setTotalAmount(request.getTotalAmount());
 			order.setCreatedAt(LocalDateTime.now());
 			order.setAddressId(request.getAddressId());
+			
+			order.setMerchant(merchant);
+			order.setPaymentMethod(request.getPaymentMethod());
+			order.setCouponCodeApplied(request.getCouponCodeApplied());
+			order.setCouponDiscount(request.getCouponDiscount());
+			order.setEstimatedDeliveryDate(request.getEstimatedDeliveryDate());
+			order.setPaymentId(request.getPaymentId());
+//			order.setPaidAmount(request.get
+			order.setTransactionId(request.getTransactionId());
+			order.setPaymentGateway(request.getPaymentGateway());
+			order.setPaymentStatus(request.getPaymentStatus());
+			
+			order.setPaymentSignature(request.getPaymentSignature());
+			order.setShippingCost(request.getShippingCost());
+			
+			
 			// generate uuid orderid
 			String orderId = RandomCodeUtil.generateOrderId();
 			log.info("Order id generated " + orderId);
@@ -123,7 +155,7 @@ public class OrderService {
 
 		// fetch email id
 
-		Optional<User> user = userRepository.findById(userId);
+		Optional<User> user = userRepo.findById(userId);
 		log.info("Ordered by details "+user.toString());
 		String email = user.get().getEmail();
 		String username = user.get().getFirstName();
@@ -172,7 +204,11 @@ public class OrderService {
 	}
 
 	public List<OrderResponse> getAllOrders() {
-		List<Order> orders = orderRepository.findAll();
+		
+		Merchant merchant=	authenticationService.getCurrentMerchant();
+		if (merchant==null)
+			throw new RuntimeException("Admin user not found");
+		List<Order> orders = orderRepository.findAllByMerchant(merchant);
 
 		return orders.stream().map(order -> {
 			OrderResponse dto = new OrderResponse();

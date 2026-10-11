@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.validation.constraints.*;
 
 
@@ -13,6 +17,8 @@ public class UserDto {
 	 	private String username;
 	   
 	   // @NotBlank(message = "Password is required")
+//	 	@JsonIgnore -not works heere blck both way
+	    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	    private String password;
 
 	    @Email(message = "Email should be valid")
@@ -47,6 +53,8 @@ public class UserDto {
 
 		private String userRole;
 		private List<AddressDto> addresses;
+		
+		private Long merchantId;
 		
 		public UserDto(String string) {
 			
@@ -206,6 +214,14 @@ public class UserDto {
 
 		public void setAddresses(List<AddressDto> addresses) {
 			this.addresses = addresses;
+		}
+
+		public Long getMerchantId() {
+			return merchantId;
+		}
+
+		public void setMerchantId(Long merchantId) {
+			this.merchantId = merchantId;
 		}
 		
 		

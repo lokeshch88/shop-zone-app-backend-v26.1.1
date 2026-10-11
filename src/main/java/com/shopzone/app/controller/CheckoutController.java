@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 
@@ -31,10 +32,11 @@ public class CheckoutController {
 	private CheckoutService checkoutService;
 
 	@GetMapping("/delivery/estimate/{id}")
-	public ResponseEntity<Map<String, LocalDate>> getDeliveryEstimateDate(@PathVariable Long id) {
+	public ResponseEntity<Map<String, LocalDate>> getDeliveryEstimateDate(@PathVariable Long id,
+			@RequestHeader("X-Merchant-Slug") String merchantSlug) {
 		log.info("In fetch estimate time for delivery");
 		
-		Map<String, LocalDate> resp=checkoutService.getDeliveryExpDate(id);
+		Map<String, LocalDate> resp=checkoutService.getDeliveryExpDate(id, merchantSlug);
 		
 		return ResponseEntity.ok(resp);
 	}

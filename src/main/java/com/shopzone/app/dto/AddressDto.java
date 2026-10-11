@@ -4,14 +4,41 @@ package com.shopzone.app.dto;
 public class AddressDto {
     private Long id;
     private String addressLine;
+    private String addressLine2;
     private String city;
     private String district;
     private String state;
+    private String isPrimaryAddress;
     private String country;
     private String pincode;
     private Double latitude;
     private Double longitude;
     private Long userId;
+    
+    private String name;
+  	 private String phone;
+  	  private String landmark;
+  	
+  	  
+  	  
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getLandmark() {
+		return landmark;
+	}
+	public void setLandmark(String landmark) {
+		this.landmark = landmark;
+	}
 	public Long getId() {
 		return id;
 	}
@@ -71,6 +98,18 @@ public class AddressDto {
 	}
 	public void setDistrict(String district) {
 		this.district = district;
+	}
+	public String getAddressLine2() {
+		return addressLine2;
+	}
+	public void setAddressLine2(String addressLine2) {
+		this.addressLine2 = addressLine2;
+	}
+	public String getIsPrimaryAddress() {
+		return isPrimaryAddress;
+	}
+	public void setIsPrimaryAddress(String isPrimaryAddress) {
+		this.isPrimaryAddress = isPrimaryAddress;
 	}
 
     // Getters & Setters

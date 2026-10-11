@@ -8,11 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,10 +35,14 @@ public class CategoryController {
 
 	@PostMapping("/create")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-		log.info("In create category method for name " + category.getName());
+	public ResponseEntity<Category> createCategory(@RequestBody Category category,
+			@RequestHeader("X-Merchant-Slug") String merchantSlug) {
+			
+		log.info("In create category controlelr for category name " + category.getName());
+		
+
 		try {
-			Category result = categoryService.createCategory(category);
+			Category result = categoryService.createCategory(category, merchantSlug);
 			if (result.getId() != null) {
 				return ResponseEntity.ok(category);
 			}
@@ -48,9 +55,10 @@ public class CategoryController {
 
 	@GetMapping("/get-all")
 //	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<List<Category>> getAllCategories() {
+	public ResponseEntity<List<CategoryDto>> getAllCategories(@RequestHeader("X-Merchant-Slug") String merchantSlug) {
 		try {
-			List<Category> categories = categoryService.getAllCategories();
+			List<CategoryDto> categories = categoryService.getAllCategories(merchantSlug);
+			
 			log.info("Categories fetched "+categories);
 			return ResponseEntity.ok(categories);
 		} catch (Exception e) {

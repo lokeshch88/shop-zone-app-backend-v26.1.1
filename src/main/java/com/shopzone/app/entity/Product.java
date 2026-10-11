@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,8 +71,8 @@ public class Product {
     @Column(name = "is_active", nullable = false)
     private String isActive;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+//    @Column(name = "image_url")
+//    private String imageUrl;
 
     @Column(name = "manufacturer")
     private String manufacturer;
@@ -106,9 +107,72 @@ public class Product {
 	@Column(columnDefinition = "LONGBLOB")
 	private byte[] imageData;
     
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "merchant_id", nullable = false)
+	private Merchant merchant;
+	
+	@Column(name = "created_by")
+	private String createdBy;
+	
+	@OneToMany(
+		    mappedBy = "product",
+		    cascade = CascadeType.ALL,
+		    orphanRemoval = true
+		)
+		@OrderBy("displayOrder ASC")
+		private List<ProductImage> images = new ArrayList<>();
+	
+	// ===== REVIEW SYSTEM=====
+	@Column(name = "average_rating", precision = 3, scale = 2)
+	private BigDecimal averageRating = BigDecimal.ZERO;
+	
+	@Column(name = "total_reviews", nullable = false)
+	private Integer totalReviews = 0;
+	
+	@OneToMany(
+		    mappedBy = "product",
+		    cascade = CascadeType.ALL,
+		    orphanRemoval = true
+		)
+		@OrderBy("createdAt DESC")
+		private List<ProductReview> reviews = new ArrayList<>();
+	
+	
+	//geteer steer
+	
+	
+	
 	
     public byte[] getImageData() {
 		return imageData;
+	}
+
+	public List<ProductImage> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ProductImage> images) {
+		this.images = images;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Merchant getMerchant() {
+		return merchant;
+	}
+
+	public void setMerchant(Merchant merchant) {
+		this.merchant = merchant;
 	}
 
 	public void setImageData(byte[] imageData) {
@@ -245,13 +309,6 @@ public class Product {
         this.isActive = isActive;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 
     public String getManufacturer() {
         return manufacturer;
@@ -285,12 +342,36 @@ public class Product {
         this.discountPrice = discountPrice;
     }
 
+	public BigDecimal getAverageRating() {
+		return averageRating;
+	}
+
+	public void setAverageRating(BigDecimal averageRating) {
+		this.averageRating = averageRating;
+	}
+
+	public Integer getTotalReviews() {
+		return totalReviews;
+	}
+
+	public void setTotalReviews(Integer totalReviews) {
+		this.totalReviews = totalReviews;
+	}
+
+	public List<ProductReview> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<ProductReview> reviews) {
+		this.reviews = reviews;
+	}
+
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
 				+ ", quantityInStock=" + quantityInStock + ", brand=" + brand + ", sku=" + sku + ", weight=" + weight
 				+ ", dimensions=" + dimensions + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", isActive="
-				+ isActive + ", imageUrl=" + imageUrl + ", manufacturer=" + manufacturer + ", rating=" + rating
+				+ isActive + ", manufacturer=" + manufacturer + ", rating=" + rating
 				+ ", mrp=" + mrp + ", discountPrice=" + discountPrice + ", categoryId=" + categoryId + ", variants="
 				+ variants + ", comparePrice=" + comparePrice + "]";
 	}

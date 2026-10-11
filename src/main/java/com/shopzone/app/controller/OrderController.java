@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,8 +49,9 @@ public class OrderController {
     @PostMapping("/user/{userId}")
     public ResponseEntity<OrderResponse> createOrder(
             @PathVariable Long userId,
-            @RequestBody OrderRequest request) {
-        return ResponseEntity.ok(OrderService.createOrder(userId, request));
+            @RequestBody OrderRequest request,
+            @RequestHeader(value = "X-Merchant-Slug", required = true) String merchantSlug) {
+        return ResponseEntity.ok(OrderService.createOrder(userId, request, merchantSlug));
     }
 
 //    @PatchMapping("/{id}/status")
@@ -98,7 +100,9 @@ log.info("Update order by id "+userId+ " to status "+status);
 
     @GetMapping("/all")  
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+    public ResponseEntity<List<OrderResponse>> getAllOrders(
+//    		@RequestHeader(value = "X-Merchant-Slug", required = true) String merchantSlug
+    		) {
     	log.info("In fetch all order method for admin: ");
         return ResponseEntity.ok(OrderService.getAllOrders());
     }

@@ -22,12 +22,16 @@ public class Address {
     private Long id;
 
     private String addressLine;
+    private String addressLine2;
     private String city;
     private String district;
     private String state;
     private String country;
+    
     private String pincode;
     private String type;
+    private String landmark;
+    	
     
     @Column(name = "is_primary_address")
     private String isPrimaryAddress;
@@ -44,11 +48,84 @@ public class Address {
    	 
    	 @Column(name = "updated_at")
    	private LocalDateTime updatedAt;
+   	 
+   	 private String name;
+   	 private String phone;
 
     public Address() {}
 
 
-    public Long getId() { return id; }
+    public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
+	public String getLandmark() {
+		return landmark;
+	}
+
+
+	public void setLandmark(String landmark) {
+		this.landmark = landmark;
+	}
+
+
+	public String getIsPrimaryAddress() {
+		return isPrimaryAddress;
+	}
+
+
+	public void setIsPrimaryAddress(String isPrimaryAddress) {
+		this.isPrimaryAddress = isPrimaryAddress;
+	}
+
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public String getPhone() {
+		return phone;
+	}
+
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+
+	public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
 
@@ -93,5 +170,28 @@ public class Address {
 	public void setDistrict(String district) {
 		this.district = district;
 	}
+
+
+
+	public String getAddressLine2() {
+		return addressLine2;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Address [id=" + id + ", addressLine=" + addressLine + ", addressLine2=" + addressLine2 + ", city="
+				+ city + ", district=" + district + ", state=" + state + ", country=" + country + ", pincode=" + pincode
+				+ ", type=" + type + ", isPrimaryAddress=" + isPrimaryAddress + ", latitude=" + latitude
+				+ ", longitude=" + longitude + ", user=" + user + ", createdAt=" + createdAt + ", updatedAt="
+				+ updatedAt + "]";
+	}
+
+
+	public void setAddressLine2(String addressLine2) {
+		this.addressLine2 = addressLine2;
+	}
+	
+	
 }
 

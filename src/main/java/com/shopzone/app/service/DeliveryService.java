@@ -1,39 +1,37 @@
 package com.shopzone.app.service;
 
-import com.shopzone.app.dto.AddressDto;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.shopzone.app.dto.DeliveryResponseDto;
 import com.shopzone.app.dto.OrderItemDto;
 import com.shopzone.app.dto.OrderResponse;
-import com.shopzone.app.entity.Address;
 import com.shopzone.app.entity.Delivery;
 import com.shopzone.app.entity.Order;
-import com.shopzone.app.entity.User;
 import com.shopzone.app.entity.OrderStatus;
+import com.shopzone.app.entity.User;
 import com.shopzone.app.repo.AddressRepository;
 import com.shopzone.app.repo.DeliveryRepository;
 import com.shopzone.app.repo.OrderRepository;
 import com.shopzone.app.repo.UserRepo;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class DeliveryService {
 
 	private final DeliveryRepository deliveryRepository;
 	private final OrderRepository orderRepository;
-	private final UserRepo userRepository;
+	private final UserRepo userRepo;
 
 	public DeliveryService(DeliveryRepository deliveryRepository, OrderRepository orderRepository,
-			UserRepo userRepository) {
+			UserRepo userRepo) {
 		this.deliveryRepository = deliveryRepository;
 		this.orderRepository = orderRepository;
-		this.userRepository = userRepository;
+		this.userRepo = userRepo;
 	}
 	@Autowired
 	private ModelMapper modelMapper;
@@ -45,7 +43,7 @@ public class DeliveryService {
 
 		Order order = orderRepository.findByOrderId(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
 
-		User deliveryBoy = userRepository.findById(deliveryBoyId)
+		User deliveryBoy = userRepo.findById(deliveryBoyId)
 				.orElseThrow(() -> new RuntimeException("Delivery boy not found"));
 		Delivery delivery = new Delivery();
 		delivery.setDeliveryBoy(deliveryBoy);
@@ -89,10 +87,10 @@ public class DeliveryService {
 
 	public List<DeliveryResponseDto> getMyDeliveries(String username) {
 
-	    User deliveryBoy = userRepository.findByUsername(username)
+	    User deliveryBoy = userRepo.findByUsername(username)
 	            .orElseThrow(() -> new RuntimeException("User not found"));
 
-	    return deliveryRepository.findAllByDeliveryBoy(deliveryBoy)
+	    return ((Stream<DeliveryResponseDto>) deliveryRepository.findAllByDeliveryBoy(deliveryBoy)
 	            .stream()
 	            .map(delivery -> {
 	                DeliveryResponseDto dto = new DeliveryResponseDto();
@@ -112,7 +110,7 @@ public class DeliveryService {
 	                orderResponse.setCreatedAt(order.getCreatedAt());
 
 	                // Map order items
-	                List<OrderItemDto> items = order.getItems().stream().map(item -> {
+	                List<OrderItemDto> items = ((Stream<OrderItemDto>) order.getItems().stream().map(item -> {
 	                    OrderItemDto itemDto = new OrderItemDto();
 	                    itemDto.setProductId(item.getProduct().getId());
 	                    itemDto.setPrice(item.getPrice());
@@ -120,7 +118,7 @@ public class DeliveryService {
 	                    itemDto.setColor(item.getColor());
 	                    itemDto.setSize(item.getSize());
 	                    return itemDto;
-	                }).toList();
+	                })) .collect(Collectors.toList());
 	                orderResponse.setItems(items);
 
 	                // Map address
@@ -134,8 +132,8 @@ public class DeliveryService {
 
 	                dto.setOrderResponse(orderResponse);
 	                return dto;
-	            })
-	            .toList();
+	            }))
+	    		 .collect(Collectors.toList());
 	}
 
 

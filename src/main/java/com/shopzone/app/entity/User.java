@@ -3,20 +3,22 @@ package com.shopzone.app.entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -68,15 +70,52 @@ public class User implements UserDetails {
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses = new ArrayList<>();
-
+    
+    // NEW
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "merchant_id")
+    private Merchant merchant;
+    
+    // Review tracking by this user
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductReview> reviews = new ArrayList<>();
 
 	public List<Address> getAddresses() {
 		return addresses;
 	}
+	
+	
+	
+	
+//getttre seettre
+	
+	
 
 	public void setAddresses(List<Address> addresses) {
 		this.addresses = addresses;
 	}
+
+	public Merchant getMerchant() {
+		return merchant;
+	}
+
+
+
+
+	public void setMerchant(Merchant merchant) {
+		this.merchant = merchant;
+	}
+
+	public List<ProductReview> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<ProductReview> reviews) {
+		this.reviews = reviews;
+	}
+
+
+
 
 	public Long getId() {
 		return id;

@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +18,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.shopzone.app.controller.UserController;
 import com.shopzone.app.dto.UserDto;
+import com.shopzone.app.entity.Merchant;
 import com.shopzone.app.entity.User;
 import com.shopzone.app.exceptions.UserNotFoundException;
 import com.shopzone.app.repo.UserRepo;
@@ -31,15 +35,20 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private AuthenticationService authenticationService;
+	
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-	public String registerUser(UserDto userDto) {
+	public String registerUser(UserDto userDto, Merchant merchant) {
 		try {
-			// check if email already exists
-//			if (userRepo.existsByEmail(userDto.getEmail())) {
-//				return "Email already in use: " + userDto.getEmail();
-//			}
-			// check if username already exists
-			if (userRepo.existsByUsername(userDto.getUsername())) {
+//			 check if email already exists
+			if (userRepo.existsByEmailAndMerchant(userDto.getEmail(), merchant)) {
+				return "Email already in use: " + userDto.getEmail();
+			}
+//			 check if username already exists
+			if (userRepo.existsByUsernameAndMerchant(userDto.getUsername(), merchant)) {
 				return "Username is already taken: " + userDto.getUsername();
 			}
 
@@ -55,6 +64,7 @@ public class UserService implements UserDetailsService {
 			user.setAge(0);
 			user.setUsername(userDto.getUsername());
 			user.setRole(userDto.getUserRole());
+			user.setMerchant(merchant);
 
 			userRepo.save(user); // save
 			return "User saved successfully";
@@ -137,13 +147,23 @@ public class UserService implements UserDetailsService {
 		return "Password reset successfully.";
 	}
 
-	public List<UserDto> getAllUsers() {
-		List<User> users = userRepo.findAll();
+	public List<UserDto> getAllUsers(String merchantSlug) {
+		
+		log.info("Fetching all users for merchant: {}", merchantSlug);
+		try {
+		Merchant merchant = authenticationService.getCurrentMerchant();
+		
+		List<User> users = userRepo.findAllByMerchant(merchant);
 
 		 return users.stream()
 	                .map(user -> modelMapper.map(user, UserDto.class))
 	                .collect(Collectors.toList());
 //		return users;
+		}
+		catch (Exception e) {
+			log.error("Error fetching users for merchant {}: {}", merchantSlug, e.getMessage());
+			throw new UserNotFoundException("Error fetching users for merchant: " + merchantSlug);
+		}
 	}
 
 	public UserDto getUserById(Long userId) {
@@ -178,6 +198,11 @@ public class UserService implements UserDetailsService {
 				 .filter(user-> "Delivery User".equals(user.getRole()) )
 	                .map(user -> modelMapper.map(user, UserDto.class))
 	                .collect(Collectors.toList());
+	}
+
+	public boolean existsByUsername(String username) {
+		
+		return userRepo.existsByUsername(username);
 	}
 
 }

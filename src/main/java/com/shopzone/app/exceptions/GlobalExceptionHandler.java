@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.shopzone.app.dto.ResponseDto;
 
+//Global exception handler class to handle exceptions across the application
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
@@ -18,6 +19,7 @@ public class GlobalExceptionHandler {
 	private String error;
 	private int statusCode;
 
+	//handle AccessDeniedException when application got unauthorized access
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
         return new ResponseEntity<>("You are not authorized to access this endpoint", HttpStatus.FORBIDDEN);
@@ -44,11 +46,20 @@ public class GlobalExceptionHandler {
     	
     }
     
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseDto> handleRuntimeException(RuntimeException e) {
+		ResponseDto response = new ResponseDto();
+		response.setMessage("An unexpected error occurred");
+		response.setError(e.getMessage());
+		response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleGeneralException(Exception ex) {
-    	errMsg="Something went wrong";
+    	errMsg=ex.getMessage();
     	
-    	error=ex.getMessage();
+    	error="Something went wrong";
     	
     	statusCode=HttpStatus.INTERNAL_SERVER_ERROR.value();
     	

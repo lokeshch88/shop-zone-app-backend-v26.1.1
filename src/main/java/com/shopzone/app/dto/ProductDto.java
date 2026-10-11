@@ -1,15 +1,22 @@
 package com.shopzone.app.dto;
 
-import javax.persistence.Column;
-import javax.validation.constraints.*;
-
-import com.shopzone.app.entity.Product;
-
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import com.shopzone.app.entity.Product;
+import com.shopzone.app.entity.ProductImage;
+import java.util.ArrayList;
 
 public class ProductDto {
 
@@ -79,6 +86,13 @@ public class ProductDto {
 	private List<String> variantSizes;
 
 	private String imageBase64;
+	
+	private List<ProductImageDto> images;
+	
+	// ===== REVIEW FIELDS =====
+	private BigDecimal averageRating = BigDecimal.ZERO;
+	private Integer totalReviews = 0;
+	private List<ProductReviewDTO> reviews = new ArrayList<>();
 
 	public ProductDto(Product product) {
 		this.id = product.getId();
@@ -92,9 +106,41 @@ public class ProductDto {
 		this.mrp = product.getMrp();
 		this.quantityInStock = product.getQuantityInStock();
 		this.sku=product.getSku();
+		
+		// Add review fields
+		this.averageRating = product.getAverageRating() != null ? product.getAverageRating() : BigDecimal.ZERO;
+		this.totalReviews = product.getTotalReviews() != null ? product.getTotalReviews() : 0;
+		
 		if (product.getImageData() != null) {
 			this.imageBase64 = Base64.getEncoder().encodeToString(product.getImageData());
 		}
+		
+		if (product.getImages() != null) {
+
+		    this.images = product.getImages()
+		            .stream()
+		            .sorted(
+		                Comparator.comparing(
+		                    ProductImage::getDisplayOrder,
+		                    Comparator.nullsLast(
+		                        Comparator.naturalOrder()
+		                    )
+		                )
+		            )
+		            .map(ProductImageDto::new)
+		            .collect(Collectors.toList());
+		}
+		
+
+	    // Map variants
+	    if (product.getVariants() != null) {
+	        this.variants = product.getVariants()
+	                .stream()
+	                .map(VariantDTO::new)  ///calls variant dto constructor
+	                .collect(Collectors.toList());
+	    } else {
+	        this.variants = new ArrayList<>();
+	    }
 	}
 
 	public BigDecimal getDiscountPercentage() {
@@ -103,6 +149,32 @@ public class ProductDto {
 					.multiply(BigDecimal.valueOf(100));
 		}
 		return BigDecimal.ZERO;
+	}
+	
+	
+
+	public List<String> getVariantColors() {
+		return variantColors;
+	}
+
+	public void setVariantColors(List<String> variantColors) {
+		this.variantColors = variantColors;
+	}
+
+	public List<String> getVariantSizes() {
+		return variantSizes;
+	}
+
+	public void setVariantSizes(List<String> variantSizes) {
+		this.variantSizes = variantSizes;
+	}
+
+	public List<ProductImageDto> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ProductImageDto> images) {
+		this.images = images;
 	}
 
 	public ProductDto() {
@@ -279,5 +351,60 @@ public class ProductDto {
 	public void setImageBase64(String imageBase64) {
 		this.imageBase64 = imageBase64;
 	}
+
+	// ===== REVIEW GETTERS & SETTERS =====
+	public BigDecimal getAverageRating() {
+		return averageRating;
+	}
+
+	public void setAverageRating(BigDecimal averageRating) {
+		this.averageRating = averageRating;
+	}
+
+	public Integer getTotalReviews() {
+		return totalReviews;
+	}
+
+	public void setTotalReviews(Integer totalReviews) {
+		this.totalReviews = totalReviews;
+	}
+
+	public List<ProductReviewDTO> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<ProductReviewDTO> reviews) {
+		this.reviews = reviews;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductDto [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
+				+ ", quantityInStock=" + quantityInStock + ", brand=" + brand + ", sku=" + sku + ", weight=" + weight
+				+ ", dimensions=" + dimensions + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", isActive="
+				+ isActive + ", imageUrl=" + imageUrl + ", manufacturer=" + manufacturer + ", rating=" + rating
+				+ ", mrp=" + mrp + ", discountPrice=" + discountPrice + ", discountPercentage=" + discountPercentage
+				+ ", categoryId=" + categoryId + ", variants=" + variants + ", comparePrice=" + comparePrice
+				+ ", variantColors=" + variantColors + ", variantSizes=" + variantSizes + ", imageBase64=" + imageBase64
+				+ ", images=" + images + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews
+				+ ", reviews=" + reviews + "]";
+	}
+
+//	@Override
+//	public String toString() {
+//		return "ProductDto [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
+//				+ ", quantityInStock=" + quantityInStock + ", brand=" + brand + ", sku=" + sku + ", weight=" + weight
+//				+ ", dimensions=" + dimensions + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", isActive="
+//				+ isActive + ", imageUrl=" + imageUrl + ", manufacturer=" + manufacturer + ", rating=" + rating
+//				+ ", mrp=" + mrp + ", discountPrice=" + discountPrice + ", discountPercentage=" + discountPercentage
+//				+ ", categoryId=" + categoryId + ", variants=" + variants + ", comparePrice=" + comparePrice
+//				+ ", variantColors=" + variantColors + ", variantSizes=" + variantSizes + ", imageBase64=" + imageBase64
+//				+ ", images=" + images + ", averageRating=" + averageRating + ", totalReviews=" + totalReviews
+//				+ ", reviews=" + reviews + "]";
+//	}
+	
+	
+	
+	
 
 }

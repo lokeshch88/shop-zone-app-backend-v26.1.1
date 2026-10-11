@@ -38,8 +38,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .csrf().disable()   //csrf disable for ddl reqs
         .authorizeRequests()
         .antMatchers("/user/login", "/user/reset-password", "/user/send-otp", "/user/verify-otp",
-     		   "/user/check-availability", "/user/register", "/products/all", "/products/{productId}", "/products/category/{category}","/user/test-redis","/user/delivery-partners"
-     		   ,"/category/get-all","/products-images/*").permitAll() // allow login endpoint without auth
+     		   "/user/check-availability", "/user/register", "/products/**","/user/test-redis","/user/delivery-partners"
+     		   ,"/category/get-all","/products-images/*"
+     		   , "/api/merchants/*", "/store/**", "/product-images/**", "/address/fetch-pincode"
+     		   ).permitAll() // allow endpoints without auth
+        
         .anyRequest().authenticated() // protect all other endpoints
 //        .and()
 //       .httpBasic() // enables basic auth (username/password prompt)
@@ -66,7 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
-	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://192.168.3.110:3000" ));
+	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://192.168.3.118:3000" ));
 	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS", "PUT"));
 	    configuration.setAllowedHeaders(Arrays.asList("*"));
 	    configuration.setAllowCredentials(true);

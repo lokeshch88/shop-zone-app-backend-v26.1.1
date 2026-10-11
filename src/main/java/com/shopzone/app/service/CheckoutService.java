@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 
 import com.shopzone.app.controller.UserController;
 import com.shopzone.app.entity.Address;
+import com.shopzone.app.entity.Merchant;
 import com.shopzone.app.entity.Seller;
 import com.shopzone.app.repo.AddressRepository;
 import com.shopzone.app.repo.GeneralParameterRepo;
+import com.shopzone.app.repo.MerchantRepository;
 import com.shopzone.app.repo.SellerRepository;
 
 @Service
@@ -29,9 +31,12 @@ public class CheckoutService {
 	@Autowired
 	private GeneralParameterService generateParamService;
 
+	@Autowired
+	private MerchantRepository merchantRepository;
+
 	private static final Logger log = LoggerFactory.getLogger(CheckoutService.class);
 
-	public Map<String, LocalDate> getDeliveryExpDate(Long addressId) {
+	public Map<String, LocalDate> getDeliveryExpDate(Long addressId, String merchantSlug) {
 		log.info("In get expected delivery date service for address id " + addressId);
 		try {
 			// fetch user addrees long lat by id
@@ -42,9 +47,16 @@ public class CheckoutService {
 			double lon1 = address.get().getLongitude();
 
 			// fetch seller addrees long lat
-			Optional<Seller> seller = sellerRepository.findById(1L);
+//			Optional<Seller> seller = sellerRepository.findById(1L);
+//			double lat2 = seller.get().getLatitude();
+//			double lon2 = seller.get().getLongitude();
+			
+			//fetch meerchant address long lat by merchant id-for only single merchant products
+			//not applicable for multiple branches of same merchant
+			Optional<Merchant> seller = merchantRepository.findByStoreSlug(merchantSlug);
 			double lat2 = seller.get().getLatitude();
 			double lon2 = seller.get().getLongitude();
+			
 
 			// get distn
 			double dist = getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2);
