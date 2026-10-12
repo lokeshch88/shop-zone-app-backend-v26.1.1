@@ -60,4 +60,5 @@ jobs:
             -e DB_NAME=shopzone_db \
             -e DB_USER=root \
             -e DB_PASSWORD=rootpassword \
+            -e EMAIL_SERVICE_HOST=shopzone-email \
             shopzone-backend
