@@ -3,6 +3,7 @@ package com.shopzone.app.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +19,7 @@ import com.shopzone.app.dto.VerifyEmailOtpRequest;
 import com.shopzone.app.repo.UserRepo;
 
 @Service
+
 public class EmailService {
 
 	@Autowired
@@ -33,6 +35,9 @@ public class EmailService {
 	private UserRepo userRepo;
 
 	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+	
+	@Value("${shopzone.email.service.url}")
+	private String emailServiceUrl;
 
 	@Async
 	public void sendWelcomeEmail(UserDto userDto) {
@@ -48,8 +53,9 @@ public class EmailService {
 
 				emailRequest.setMessage(message);
 //			    emailRequest.setMessage("Welcome to booking app /n Your username is +userdto.getusername");
+				String targetUrl = emailServiceUrl + "/email/welcome";
 				ResponseEntity<EmailResponse> response = restTemplate
-						.postForEntity("http://localhost:8081/email/welcome", emailRequest, EmailResponse.class);
+						.postForEntity(targetUrl, emailRequest, EmailResponse.class);
 
 				if (response.getStatusCode().is2xxSuccessful()) {
 					EmailResponse body = response.getBody();
@@ -78,7 +84,9 @@ public class EmailService {
 
 			EmailRequest emailRequest = new EmailRequest();
 			emailRequest.setEmail(req.getEmail());
-			ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8081/email/send-otp",
+			
+			String targetUrl = emailServiceUrl + "/email/send-otp";
+			ResponseEntity<String> response = restTemplate.postForEntity(targetUrl,
 					emailRequest, String.class);
 			String msg = response.getBody();
 			resp = "Otp sent on email";
@@ -98,8 +106,10 @@ public class EmailService {
 	public String verifyOtp(VerifyEmailOtpRequest req) {
 		String msg;
 		try {
+			
+			String targetUrl = emailServiceUrl + "/email/verify-otp";
 
-			ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8081/email/verify-otp", req,
+			ResponseEntity<String> response = restTemplate.postForEntity(targetUrl, req,
 					String.class);
 			msg = response.getBody();
 			log.info(msg);
@@ -117,8 +127,10 @@ public class EmailService {
 
 	@Async
 	public String sendOrderConfirmedEmail(EmailRequest req) {
+		
 		String msg;
-		ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8081/email/notify", req,
+		String targetUrl = emailServiceUrl + "/email/notify";
+		ResponseEntity<String> response = restTemplate.postForEntity(targetUrl, req,
 				String.class);
 		msg = response.getBody();
 		log.info(msg);
