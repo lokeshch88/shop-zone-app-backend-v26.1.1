@@ -45,20 +45,11 @@ jobs:
         script: |
           cd ~/shopzone/backend
           # Stop and remove old version if running
-          docker stop shopzone-backend || true
-          docker rm shopzone-backend || true
+          docker stop shopzone-backend 2>/dev/null || true
+          docker rm shopzone-backend 2>/dev/null || true
           
           # Build container image from current folder context
           docker build -t shopzone-backend .
           
           # Run container inside the shared network, injecting DB coordinates dynamically
-          docker run -d \
-            --name shopzone-backend \
-            --network shopzone-network \
-            -p 8080:8080 \
-            -e DB_HOST=shopzone-db \
-            -e DB_NAME=shopzone_db \
-            -e DB_USER=root \
-            -e DB_PASSWORD=rootpassword \
-            -e EMAIL_SERVICE_HOST=shopzone-email \
-            shopzone-backend
+          docker run -d --name shopzone-backend -p 8080:8080 shopzone-backend

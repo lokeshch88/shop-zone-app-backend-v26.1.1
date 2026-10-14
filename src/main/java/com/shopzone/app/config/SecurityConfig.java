@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
     	http
+		.csrf().disable() // <-- CRUCIAL FIX: Ensure this is explicitly called!
     	.cors()
     	.and()
         .csrf().disable()   //csrf disable for ddl reqs
@@ -69,13 +70,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 	    CorsConfiguration configuration = new CorsConfiguration();
-	    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://192.168.3.118:3000" ));
-	    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS", "PUT"));
-	    configuration.setAllowedHeaders(Arrays.asList("*"));
-	    configuration.setAllowCredentials(false);
+	     // Replaced generic domains with your exact production S3 endpoint and AWS Elastic IP
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "http://192.168.3.118:3000",
+            "http://32.236.64.240", // <- Main Backend EC2 Elastic IP
+            "http://shopzone-web-frontend-2026.s3-website-ap-southeast-2.amazonaws.com" // <-full S3 website endpoint here
+        ));
+        
+        //  for all REST verbs including PATCH and pre-flight OPTIONS handshakes
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS", "PUT"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Keep as false since we explicitly listed the origin strings
+        configuration.setAllowCredentials(false); 
 
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", configuration);
-	    return source;
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
 	}
 }     
