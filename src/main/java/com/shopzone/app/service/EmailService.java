@@ -88,7 +88,7 @@ public class EmailService {
 			String targetUrl = emailServiceUrl + "/email/send-otp";
 			ResponseEntity<String> response = restTemplate.postForEntity(targetUrl,
 					emailRequest, String.class);
-			String msg = response.getBody();
+			response.getBody();
 			resp = "Otp sent on email";
 		} catch (ResourceAccessException e) {
 			resp = "Email service is not responding";

@@ -440,7 +440,8 @@ public class UserController {
 		log.info("Otp request for email " + user.getEmail());
 		EmailRequest req = new EmailRequest();
 		req.setEmail(user.getEmail());
-		String resp = emailService.sendOtp(req);
+		emailService.sendOtp(req); //async task
+		String resp = "Otp sent on email";
 		user.setMsg(resp);
 		return ResponseEntity.ok(user);
 
