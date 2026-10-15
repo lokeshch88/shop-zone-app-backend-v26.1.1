@@ -75,6 +75,7 @@ public class EmailService {
 
 	@Async
 	public String sendOtp(EmailRequest req) {
+		log.info("Send OTP email sending by thread " + Thread.currentThread());
 		String resp;
 
 		try {
